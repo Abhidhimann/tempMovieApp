@@ -31,7 +31,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -40,8 +39,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil.compose.AsyncImage
 import com.abhishek.tempmovieapp.domain.model.Movie
+import com.abhishek.tempmovieapp.presentation.uiutils.MoviePoster
 
 @Composable
 fun MovieListScreenRoot(viewModel: MovieListViewModel = hiltViewModel<MovieListViewModel>(), onMovieClicked: (Int) -> Unit){
@@ -94,25 +93,7 @@ fun MovieItem(
             .fillMaxWidth()
             .background(Color.Black)
     ) {
-
-        Card(
-            modifier = Modifier
-                .fillMaxWidth(),
-            shape = RoundedCornerShape(10.dp),
-            elevation = CardDefaults.cardElevation(8.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = Color.Black
-            )
-        ) {
-            AsyncImage(
-                model = imageUrl,
-                contentDescription = "movie_image",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(228.dp),
-                contentScale = ContentScale.Crop
-            )
-        }
+        MoviePoster(imageUrl, modifier = Modifier.fillMaxWidth().height(228.dp))
 
         Text(
             text = title,
