@@ -22,10 +22,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -52,17 +54,18 @@ fun MovieDetailsScreenRoot(
 
 @Composable
 fun MovieDetailsScreen(movie: Movie) {
+    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+    val targetHeight = max(460.dp, screenHeight * 0.7f)
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
             .verticalScroll(rememberScrollState())
     ) {
-
         MoviePoster(
             imageUrl = movie.posterImg,
             modifier = Modifier
-                .height(400.dp)
+                .height(targetHeight)
         )
 
         Spacer(modifier = Modifier.height(12.dp))

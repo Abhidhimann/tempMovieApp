@@ -13,7 +13,7 @@ fun MovieDto.toEntity(): MovieEntity {
     return MovieEntity(
         title = title,
         movieId = movieId,
-        voteAverage = voteAverage,
+        voteAverage = "%.2f".format(voteAverage).toDouble(),
         posterImg = movieImageLink,
         releaseDate = releaseDate,
         overview = overview

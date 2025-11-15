@@ -111,9 +111,11 @@ fun MovieListTopBar(
                 start = 8.dp,
                 end = 8.dp,
                 top = WindowInsets.systemBars.asPaddingValues().calculateTopPadding(),
-            ),
+            )
+        ,
         placeholder = { Text("Search movies...") },
         singleLine = true,
+        shape = RoundedCornerShape(10.dp),
         leadingIcon = {
             Icon(
                 painter = painterResource(id = R.drawable.ic_menu_search),
@@ -151,8 +153,8 @@ fun MovieListContent(
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             modifier = modifier,
-            contentPadding = PaddingValues(8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = PaddingValues(10.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
 
@@ -184,12 +186,11 @@ fun MovieItem(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(10.dp))
-            .background(MaterialTheme.colorScheme.background)
     ) {
         MoviePoster(
             imageUrl, modifier = Modifier
                 .fillMaxWidth()
-                .height(240.dp)
+                .height(280.dp)
         )
 
         Text(
@@ -200,7 +201,7 @@ fun MovieItem(
             color = MaterialTheme.colorScheme.onBackground,
             fontSize = 16.sp,
             modifier = Modifier
-                .padding(start = 10.dp, end = 8.dp)
+                .padding(start = 8.dp, end = 8.dp)
         )
 
         Row(
@@ -210,10 +211,10 @@ fun MovieItem(
         ) {
 
             Text(
-                text = year,
+                text = year.split("-").firstOrNull() ?: "",
                 color = MaterialTheme.colorScheme.onBackground,
                 fontSize = 12.sp,
-                modifier = Modifier.padding(start = 8.dp)
+                modifier = Modifier.padding(start = 9.dp)
             )
 
             Spacer(modifier = Modifier.weight(1f))
