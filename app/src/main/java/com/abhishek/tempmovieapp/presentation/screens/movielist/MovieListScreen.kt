@@ -73,7 +73,7 @@ fun MovieListScreenRoot(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val isConnected by viewModel.isConnected.collectAsStateWithLifecycle()
-    val snackbarHostState = remember { SnackbarHostState() }
+    val snackBarHostState = remember { SnackbarHostState() }
 
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -87,13 +87,13 @@ fun MovieListScreenRoot(
                     }
 
                     is MovieListEvent.ShowSnackBar -> {
-                        snackbarHostState.showSnackbar(event.message)
+                        snackBarHostState.showSnackbar(event.message)
                     }
                 }
             }
     }
 
-    MovieListScreen(snackbarHostState, state) { intent ->
+    MovieListScreen(snackBarHostState, state) { intent ->
         if (intent is MovieListIntent.OnMovieClicked) {
             onMovieClicked.invoke(intent.id)
         } else viewModel.onAction(intent)
@@ -103,14 +103,14 @@ fun MovieListScreenRoot(
 
 @Composable
 fun MovieListScreen(
-    snackbarHost: SnackbarHostState,
+    snackBarHost: SnackbarHostState,
     state: MovieListState,
     onAction: (MovieListIntent) -> Unit
 ) {
     var searchQuery by remember { mutableStateOf(state.searchQuery) }
 
     Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHost) },
+        snackbarHost = { SnackbarHost(snackBarHost) },
         contentWindowInsets = WindowInsets.systemBars,
         topBar = {
             MovieListTopBar(
