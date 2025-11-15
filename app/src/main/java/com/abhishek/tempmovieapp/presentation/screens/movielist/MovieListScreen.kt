@@ -2,6 +2,7 @@ package com.abhishek.tempmovieapp.presentation.screens.movielist
 
 
 import android.R
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -28,11 +29,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,6 +46,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -49,9 +54,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.flowWithLifecycle
 import com.abhishek.tempmovieapp.domain.model.Movie
 import com.abhishek.tempmovieapp.presentation.uiutils.MoviePoster
+import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun MovieListScreenRoot(
@@ -59,7 +68,28 @@ fun MovieListScreenRoot(
     onMovieClicked: (Int) -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    MovieListScreen(state) { intent ->
+    val isConnected by viewModel.isConnected.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+    LaunchedEffect(Unit) {
+        viewModel.events
+            .flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+            .collectLatest { event ->
+                when (event) {
+                    is MovieListEvent.ShowToast -> {
+                        Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                    }
+
+                    is MovieListEvent.ShowSnackBar -> {
+                        snackbarHostState.showSnackbar(event.message)
+                    }
+                }
+            }
+    }
+
+    MovieListScreen(snackbarHostState, state) { intent ->
         if (intent is MovieListIntent.OnMovieClicked) {
             onMovieClicked.invoke(intent.id)
         } else viewModel.onAction(intent)
@@ -69,12 +99,14 @@ fun MovieListScreenRoot(
 
 @Composable
 fun MovieListScreen(
+    snackbarHost: SnackbarHostState,
     state: MovieListState,
     onAction: (MovieListIntent) -> Unit
 ) {
     var searchQuery by remember { mutableStateOf(state.searchQuery) }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHost) },
         contentWindowInsets = WindowInsets.systemBars,
         topBar = {
             MovieListTopBar(
@@ -111,8 +143,7 @@ fun MovieListTopBar(
                 start = 8.dp,
                 end = 8.dp,
                 top = WindowInsets.systemBars.asPaddingValues().calculateTopPadding(),
-            )
-        ,
+            ),
         placeholder = { Text("Search movies...") },
         singleLine = true,
         shape = RoundedCornerShape(10.dp),
@@ -262,5 +293,6 @@ fun MovieListScreenPreview() {
         )
     )
     val state = MovieListState(movies = tempMovies)
-    MovieListScreen(state) { }
+    val snackbarHostState = remember { SnackbarHostState() }
+    MovieListScreen(snackbarHostState,state) { }
 }

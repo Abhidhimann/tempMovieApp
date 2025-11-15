@@ -1,6 +1,7 @@
 package com.abhishek.tempmovieapp.presentation.screens.moviedetails
 
 import android.R
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -23,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -30,20 +32,36 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.flowWithLifecycle
 import com.abhishek.tempmovieapp.domain.model.Movie
 import com.abhishek.tempmovieapp.presentation.uiutils.MoviePoster
+import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun MovieDetailsScreenRoot(
     viewModel: MovieDetailsViewModel = hiltViewModel<MovieDetailsViewModel>(),
+    onBackEvent: () -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val context = LocalContext.current
 
-    LaunchedEffect(state.movie) {
-        if (state.movie == null) {
-            // todo error then back
-        }
+    val lifecycleOwner = LocalLifecycleOwner.current
+    LaunchedEffect(Unit) {
+        viewModel.events
+            .flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+            .collectLatest { event ->
+                when (event) {
+                    is MovieDetailsEvent.ShowToast -> {
+                        Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                        onBackEvent.invoke()
+                    }
+
+                    else -> Unit
+                }
+            }
     }
 
     state.movie?.let { movie ->

@@ -94,7 +94,7 @@ dependencies {
     implementation(libs.coil.compose)
 
     // pull to refresh
-    implementation("androidx.compose.material3:material3:1.4.0")
+    implementation(libs.material3)
 
 
     testImplementation(libs.junit)
