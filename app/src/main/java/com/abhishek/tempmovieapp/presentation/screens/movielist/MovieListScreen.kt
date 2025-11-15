@@ -12,20 +12,19 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -37,7 +36,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -54,8 +52,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.abhishek.tempmovieapp.domain.model.Movie
 import com.abhishek.tempmovieapp.presentation.uiutils.MoviePoster
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 @Composable
 fun MovieListScreenRoot(
@@ -76,7 +72,7 @@ fun MovieListScreen(
     state: MovieListState,
     onAction: (MovieListIntent) -> Unit
 ) {
-    var searchQuery by remember { mutableStateOf("") }
+    var searchQuery by remember { mutableStateOf(state.searchQuery) }
 
     Scaffold(
         contentWindowInsets = WindowInsets.systemBars,
@@ -91,7 +87,6 @@ fun MovieListScreen(
         },
         modifier = Modifier
             .fillMaxSize()
-            .windowInsetsPadding(WindowInsets.systemBars)
     ) { paddingValues ->
         MovieListContent(
             state, Modifier
@@ -112,7 +107,11 @@ fun MovieListTopBar(
         onValueChange = { onQueryChanged(it) },
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp),
+            .padding(
+                start = 8.dp,
+                end = 8.dp,
+                top = WindowInsets.systemBars.asPaddingValues().calculateTopPadding(),
+            ),
         placeholder = { Text("Search movies...") },
         singleLine = true,
         leadingIcon = {
@@ -185,12 +184,12 @@ fun MovieItem(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(10.dp))
-            .background(MaterialTheme.colorScheme.primaryContainer)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         MoviePoster(
             imageUrl, modifier = Modifier
                 .fillMaxWidth()
-                .height(228.dp)
+                .height(240.dp)
         )
 
         Text(
@@ -198,10 +197,10 @@ fun MovieItem(
             fontWeight = FontWeight.Bold,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            color = MaterialTheme.colorScheme.onPrimaryContainer,
+            color = MaterialTheme.colorScheme.onBackground,
             fontSize = 16.sp,
             modifier = Modifier
-                .padding(start = 8.dp, end = 8.dp)
+                .padding(start = 10.dp, end = 8.dp)
         )
 
         Row(
@@ -212,7 +211,7 @@ fun MovieItem(
 
             Text(
                 text = year,
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                color = MaterialTheme.colorScheme.onBackground,
                 fontSize = 12.sp,
                 modifier = Modifier.padding(start = 8.dp)
             )
@@ -221,7 +220,7 @@ fun MovieItem(
 
             Text(
                 text = rating.toString(),
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                color = MaterialTheme.colorScheme.onBackground,
                 fontSize = 12.sp,
                 modifier = Modifier.padding(start = 2.5.dp, end = 2.dp)
             )

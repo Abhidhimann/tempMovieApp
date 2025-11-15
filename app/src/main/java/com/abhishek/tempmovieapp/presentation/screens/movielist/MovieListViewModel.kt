@@ -3,8 +3,6 @@ package com.abhishek.tempmovieapp.presentation.screens.movielist
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.room.Query
-import androidx.room.util.query
 import com.abhishek.tempmovieapp.core.constants.classTag
 import com.abhishek.tempmovieapp.domain.usecase.GetMoviesUseCase
 import com.abhishek.tempmovieapp.domain.usecase.RefreshTrendingMoviesUseCase
@@ -12,7 +10,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
