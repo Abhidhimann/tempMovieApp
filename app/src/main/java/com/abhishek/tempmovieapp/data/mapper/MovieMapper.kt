@@ -5,14 +5,6 @@ import com.abhishek.tempmovieapp.data.local.entity.MovieEntity
 import com.abhishek.tempmovieapp.data.remote.response.MovieDto
 import com.abhishek.tempmovieapp.domain.model.Movie
 
-fun MovieDto.toDomain(): Movie = Movie(
-    movieTitle = title,
-    movieId = movieId,
-    voteAverage = voteAverage,
-    posterImg = posterPath ?: "",
-    releaseDate = releaseDate,
-    overview = overview
-)
 
 fun MovieDto.toEntity(): MovieEntity {
     val movieImageLink = if (posterPath == null) {
@@ -34,5 +26,6 @@ fun MovieEntity.toDomain(): Movie = Movie(
     voteAverage = voteAverage,
     posterImg = posterImg,
     releaseDate = releaseDate,
-    overview = overview
+    overview = overview,
+    id = id
 )

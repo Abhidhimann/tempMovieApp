@@ -2,6 +2,7 @@ package com.abhishek.tempmovieapp.domain.model
 
 
 data class Movie (
+    val id: Int,
     val movieTitle: String,
     val movieId: Long,
     val voteAverage: Double,

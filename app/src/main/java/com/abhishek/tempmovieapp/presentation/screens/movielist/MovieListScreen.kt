@@ -22,6 +22,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -33,10 +34,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @Composable
 fun MovieListScreenRoot(viewModel: MovieListViewModel = hiltViewModel<MovieListViewModel>(), onMovieClicked: (Int) -> Unit){
-
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    MovieListScreen(state, onMovieClicked)
 }
 
 
@@ -62,7 +65,7 @@ fun MovieListScreen(
                 rating = movie.voteAverage,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { onMovieClicked(0) }
+                    .clickable { onMovieClicked(movie.id) }
             )
         }
     }
