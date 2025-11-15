@@ -15,6 +15,6 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindMovieRepository(
-        movieRepositoryImpl: MovieRepositoryImpl
+        movieRepositoryImpl: MovieRepositoryImpl,
     ): MovieRepository
 }

@@ -26,7 +26,7 @@ class MovieRepositoryImpl @Inject constructor(
                     val movies = moviesDto.map { it.toDomain() }
 
                     // todo save it local
-                    Log.i(classTag(), "Fetch movies from network $movies")
+                    Log.i(classTag(), "Fetched movies from network $movies")
                     Result.success(Unit)
                 } else {
                     // can map different code to different error enums then later handle they in ui
