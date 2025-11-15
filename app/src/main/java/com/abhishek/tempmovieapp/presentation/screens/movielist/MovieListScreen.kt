@@ -10,10 +10,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -35,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.abhishek.tempmovieapp.domain.model.Movie
 
 @Composable
 fun MovieListScreenRoot(viewModel: MovieListViewModel = hiltViewModel<MovieListViewModel>(), onMovieClicked: (Int) -> Unit){
@@ -51,7 +55,8 @@ fun MovieListScreen(
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         modifier = Modifier
-            .fillMaxSize(),
+            .fillMaxSize()
+            .windowInsetsPadding(WindowInsets.systemBars),
         contentPadding = PaddingValues(8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -153,6 +158,26 @@ fun MovieItem(
 @Preview
 @Composable
 fun MovieListScreenPreview(){
-    val state = MovieListState(movies = listOf())
+    val tempMovies = listOf(
+        Movie(
+            id = 1,
+            movieTitle = "Inception",
+            movieId = 12345,
+            voteAverage = 8.8,
+            posterImg = "",
+            releaseDate = "2010-07-16",
+            overview = "A thief enters dreams to steal secrets."
+        ),
+        Movie(
+            id = 2,
+            movieTitle = "Interstellar",
+            movieId = 12346,
+            voteAverage = 8.6,
+            posterImg = "",
+            releaseDate = "2014-11-07",
+            overview = "A team travels through a wormhole to save humanity."
+        )
+    )
+    val state = MovieListState(movies = tempMovies)
     MovieListScreen(state) { }
 }
