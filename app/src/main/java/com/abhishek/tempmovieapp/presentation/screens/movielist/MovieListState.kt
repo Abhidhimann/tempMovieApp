@@ -1,4 +1,7 @@
 package com.abhishek.tempmovieapp.presentation.screens.movielist
 
-class MovieListState {
-}
+import com.abhishek.tempmovieapp.domain.model.Movie
+
+data class MovieListState (
+    val movies: List<Movie> = emptyList()
+)
