@@ -1,4 +1,4 @@
-package com.abhishek.tempmovieapp.data.remote.model
+package com.abhishek.tempmovieapp.data.remote.response
 
 import com.google.gson.annotations.SerializedName
 

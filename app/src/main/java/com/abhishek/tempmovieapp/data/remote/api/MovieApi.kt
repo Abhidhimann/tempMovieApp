@@ -1,6 +1,6 @@
 package com.abhishek.tempmovieapp.data.remote.api
 
-import com.abhishek.tempmovieapp.data.remote.model.MovieResponse
+import com.abhishek.tempmovieapp.data.remote.response.MovieResponse
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
