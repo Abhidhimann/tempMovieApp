@@ -15,7 +15,7 @@ data class MovieEntity(
     val movieId: Long,
     val title: String,
     val voteAverage: Double,
-    val posterPath: String?,
+    val posterPath: String,
     val releaseDate: String,
     val overview: String
 )
