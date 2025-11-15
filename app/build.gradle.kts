@@ -1,3 +1,12 @@
+import java.util.Properties
+
+val secretsPropertiesFile = rootProject.file("secret.properties")
+val secrets = Properties()
+
+if (secretsPropertiesFile.exists()) {
+    secrets.load(secretsPropertiesFile.inputStream())
+}
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -10,6 +19,10 @@ android {
     namespace = "com.abhishek.tempmovieapp"
     compileSdk = 36
 
+    buildFeatures {
+        buildConfig = true
+    }
+
     defaultConfig {
         applicationId = "com.abhishek.tempmovieapp"
         minSdk = 29
@@ -18,6 +31,12 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField(
+            "String",
+            "TMDB_API_KEY",
+            "\"${secrets.getProperty("TMDB_API_KEY")}\""
+        )
     }
 
     buildTypes {
