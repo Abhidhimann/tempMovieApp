@@ -41,12 +41,9 @@ fun NavigationHost(navController: NavHostController, startDestination: String) {
             val movieId = backStackEntry.arguments?.getInt(Screen.MovieDetails.ARG_MOVIE_ID)
             if (movieId != null) {
                 MovieDetailsScreenRoot() {
-                    Log.i(tempTag(), "on back called")
                     navController.popBackStack()
                 }
             } else {
-                Log.i(tempTag(), "movie id is null")
-                // handle error case
                 LaunchedEffect(Unit) {
                     navController.popBackStack()
                 }

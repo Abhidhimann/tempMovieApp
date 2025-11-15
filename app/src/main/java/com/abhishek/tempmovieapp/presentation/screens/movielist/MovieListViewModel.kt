@@ -78,7 +78,7 @@ class MovieListViewModel @Inject constructor(
             _state.update { it.copy(isLoading = false) }
             Log.e(tempTag(), "Fetch movies from network $exception")
 
-            // if move used then make a error handler fun
+            // later can make error handler, later can segregate error code to different message
             val message = when (exception) {
                 is DataError.LimitReached -> "No more movies found"
                 is DataError.NetworkError -> "Network error occurred!"
@@ -99,7 +99,7 @@ class MovieListViewModel @Inject constructor(
             }
             .onEach { movies ->
                 if (state.value.searchQuery.isEmpty() && movies.isEmpty()) {
-                    // app launch first time
+                    // if there is no data in db call refreshMovies() automatically
                     refreshMovies()
                     _state.update { it.copy(isInitialLoading = false) }
                 } else if (state.value.searchQuery.isEmpty() && !movies.isEmpty()) {

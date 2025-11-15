@@ -301,6 +301,7 @@ fun MovieItem(
 @Preview
 @Composable
 fun MovieListScreenPreview() {
+    // temporary data fore preview
     val tempMovies = listOf(
         Movie(
             id = 1,

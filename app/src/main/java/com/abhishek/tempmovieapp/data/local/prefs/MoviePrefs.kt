@@ -5,8 +5,8 @@ import javax.inject.Inject
 import androidx.core.content.edit
 
 
-// just to save current page while calling refresh, so user won't fetch previous page that is
-// already on DB and to manage page limit reach
+// Store the current page during refresh to prevent re-fetching pages
+// already in the database and to handle page limit constraints
 class MoviePrefs @Inject constructor(
     private val sharedPreferences: SharedPreferences
 ) {

@@ -7,7 +7,6 @@ import androidx.lifecycle.viewModelScope
 import com.abhishek.tempmovieapp.core.constants.tempTag
 import com.abhishek.tempmovieapp.domain.usecase.GetMovieDetailsUseCase
 import com.abhishek.tempmovieapp.presentation.navigation.Screen
-import com.abhishek.tempmovieapp.presentation.screens.movielist.MovieListEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,9 +30,12 @@ class MovieDetailsViewModel @Inject constructor(
 
     private val _state = MutableStateFlow(MovieDetailsState())
     val state: StateFlow<MovieDetailsState> = _state.onStart {
-        Log.i(tempTag(), "calling it again")
         loadMovie(movieId)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), _state.value)
+
+    init {
+        loadMovie(movieId)
+    }
 
     private val _events = MutableSharedFlow<MovieDetailsEvent>()
     val events = _events.asSharedFlow()

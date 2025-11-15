@@ -44,7 +44,6 @@ class MovieRepositoryImpl @Inject constructor(
                     moviePrefs.totalPages = response.body()?.totalPages ?: moviePrefs.totalPages
                     Result.success(Unit)
                 } else {
-                    // can map different code to different error enums then later handle they in ui
                     Result.failure(DataError.NetworkError(response.code(), response.message()))
                 }
             } catch (e: Exception) {
