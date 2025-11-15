@@ -39,7 +39,7 @@ class MovieRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun getTrendingMovies(): Flow<List<Movie>> {
-        return movieDao.getAllMovies().map { it.map { movieEntities -> movieEntities.toDomain() } }
+    override fun getMovies(query: String): Flow<List<Movie>> {
+        return movieDao.getMovies(query).map { it.map { movieEntities -> movieEntities.toDomain() } }
     }
 }

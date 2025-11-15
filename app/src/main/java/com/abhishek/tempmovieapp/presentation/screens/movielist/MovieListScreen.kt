@@ -5,6 +5,7 @@ import android.R
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -22,17 +23,26 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -43,22 +53,82 @@ import com.abhishek.tempmovieapp.domain.model.Movie
 import com.abhishek.tempmovieapp.presentation.uiutils.MoviePoster
 
 @Composable
-fun MovieListScreenRoot(viewModel: MovieListViewModel = hiltViewModel<MovieListViewModel>(), onMovieClicked: (Int) -> Unit){
+fun MovieListScreenRoot(
+    viewModel: MovieListViewModel = hiltViewModel<MovieListViewModel>(),
+    onMovieClicked: (Int) -> Unit
+) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    MovieListScreen(state, onMovieClicked)
+    MovieListScreen(state) { intent ->
+        if (intent is MovieListIntent.OnMovieClicked) {
+            onMovieClicked.invoke(intent.id)
+        } else viewModel.onAction(intent)
+    }
 }
 
 
 @Composable
 fun MovieListScreen(
     state: MovieListState,
-    onMovieClicked: (Int) -> Unit
+    onAction: (MovieListIntent) -> Unit
+) {
+    var searchQuery by remember { mutableStateOf("") }
+
+    Scaffold(
+        contentWindowInsets = WindowInsets.systemBars,
+        topBar = {
+            MovieListTopBar(
+                query = searchQuery,
+                onQueryChanged = {
+                    searchQuery = it
+                    onAction(MovieListIntent.OnSearchQueryChanged(it))
+                }
+            )
+        },
+        modifier = Modifier
+            .fillMaxSize()
+            .windowInsetsPadding(WindowInsets.systemBars)
+    ) { paddingValues ->
+        MovieListContent(
+            state, Modifier
+                .fillMaxSize()
+                .padding(paddingValues), onAction
+        )
+    }
+}
+
+
+@Composable
+fun MovieListTopBar(
+    query: String,
+    onQueryChanged: (String) -> Unit
+) {
+    OutlinedTextField(
+        value = query,
+        onValueChange = { onQueryChanged(it) },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        placeholder = { Text("Search movies...") },
+        singleLine = true,
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = "Search icon"
+            )
+        },
+    )
+}
+
+
+@Composable
+fun MovieListContent(
+    state: MovieListState,
+    modifier: Modifier,
+    onAction: (MovieListIntent) -> Unit
 ) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
-        modifier = Modifier
-            .fillMaxSize()
-            .windowInsetsPadding(WindowInsets.systemBars),
+        modifier = modifier,
         contentPadding = PaddingValues(8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -72,12 +142,11 @@ fun MovieListScreen(
                 rating = movie.voteAverage,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { onMovieClicked(movie.id) }
+                    .clickable { onAction(MovieListIntent.OnMovieClicked(movie.id)) }
             )
         }
     }
 }
-
 
 
 @Composable
@@ -86,54 +155,60 @@ fun MovieItem(
     title: String,
     year: String,
     rating: Double,
-    modifier : Modifier
+    modifier: Modifier
 ) {
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .background(Color.Black)
+            .clip(RoundedCornerShape(10.dp))
+            .background(MaterialTheme.colorScheme.primaryContainer)
     ) {
-        MoviePoster(imageUrl, modifier = Modifier.fillMaxWidth().height(228.dp))
+        MoviePoster(
+            imageUrl, modifier = Modifier
+                .fillMaxWidth()
+                .height(228.dp)
+        )
 
         Text(
             text = title,
+            fontWeight = FontWeight.Bold,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            color = colorResource(id = R.color.white),
+            color = MaterialTheme.colorScheme.onPrimaryContainer,
             fontSize = 16.sp,
             modifier = Modifier
-                .padding(start = 12.dp, end = 10.dp)
+                .padding(start = 8.dp, end = 8.dp)
         )
 
         Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 4.dp),
+                .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
 
             Text(
                 text = year,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
                 fontSize = 12.sp,
-                modifier = Modifier.padding(start = 13.dp)
+                modifier = Modifier.padding(start = 8.dp)
             )
 
             Spacer(modifier = Modifier.weight(1f))
 
             Text(
                 text = rating.toString(),
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
                 fontSize = 12.sp,
                 modifier = Modifier.padding(start = 2.5.dp, end = 2.dp)
             )
 
             Image(
-                painter = painterResource(id = R.drawable.star_on),
+                painter = painterResource(id = R.drawable.star_big_off),
                 contentDescription = null,
                 modifier = Modifier
-                    .size(width = 14.dp, height = 12.dp)
-                    .padding(end = 9.dp),
-                colorFilter = ColorFilter.tint(Color.White)
+                    .padding(end = 4.dp)
+                    .size(14.dp),
+                colorFilter = ColorFilter.tint(if (isSystemInDarkTheme()) Color.White else Color.Black)
             )
         }
     }
@@ -141,7 +216,7 @@ fun MovieItem(
 
 @Preview
 @Composable
-fun MovieListScreenPreview(){
+fun MovieListScreenPreview() {
     val tempMovies = listOf(
         Movie(
             id = 1,

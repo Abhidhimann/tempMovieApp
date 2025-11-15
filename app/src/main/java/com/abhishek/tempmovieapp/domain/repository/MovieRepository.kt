@@ -7,5 +7,5 @@ interface MovieRepository {
     // fetch movie from network
     suspend fun refreshTrendingMovies(): Result<Unit>
     // observe movies from db
-    fun getTrendingMovies(): Flow<List<Movie>>
+    fun getMovies(query: String): Flow<List<Movie>>
 }

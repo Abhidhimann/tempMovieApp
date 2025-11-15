@@ -5,8 +5,8 @@ import com.abhishek.tempmovieapp.domain.repository.MovieRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class GetTrendingMoviesUseCase @Inject constructor(private val repository: MovieRepository) {
-    operator fun invoke(): Flow<List<Movie>> {
-        return repository.getTrendingMovies()
+class GetMoviesUseCase @Inject constructor(private val repository: MovieRepository) {
+    operator fun invoke(query: String): Flow<List<Movie>> {
+        return repository.getMovies(query)
     }
 }

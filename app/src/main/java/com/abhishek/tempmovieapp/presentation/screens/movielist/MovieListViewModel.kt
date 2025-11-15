@@ -3,20 +3,28 @@ package com.abhishek.tempmovieapp.presentation.screens.movielist
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.room.Query
+import androidx.room.util.query
 import com.abhishek.tempmovieapp.core.constants.classTag
-import com.abhishek.tempmovieapp.domain.usecase.GetTrendingMoviesUseCase
+import com.abhishek.tempmovieapp.domain.usecase.GetMoviesUseCase
 import com.abhishek.tempmovieapp.domain.usecase.RefreshTrendingMoviesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class MovieListViewModel @Inject constructor(
-    private val getTrendingMoviesUseCase: GetTrendingMoviesUseCase,
+    private val getMoviesUseCase: GetMoviesUseCase,
     private val refreshTrendingMoviesUseCase: RefreshTrendingMoviesUseCase
 ) : ViewModel() {
 
@@ -24,7 +32,16 @@ class MovieListViewModel @Inject constructor(
     val state: StateFlow<MovieListState> = _state
 
     init {
-        observeMovies()
+        observerSearchQuery()
+    }
+
+    fun onAction(intent: MovieListIntent) {
+        when (intent) {
+            is MovieListIntent.OnSearchQueryChanged -> {
+                _state.update { it.copy(searchQuery = intent.query) }
+            }
+            else -> Unit
+        }
     }
 
     fun refreshMovies() {
@@ -37,14 +54,14 @@ class MovieListViewModel @Inject constructor(
         }
     }
 
-    fun observeMovies() =
-        viewModelScope.launch {
-            getTrendingMoviesUseCase()
-                .catch { e ->
-                    // handle error
-                }
-                .collect { movies ->
-                    _state.update { it.copy(movies = movies) }
-                }
-        }
+    fun observerSearchQuery() {
+        state.map { it.searchQuery }
+            .debounce(300L)
+            .distinctUntilChanged()
+            .flatMapLatest { query -> getMoviesUseCase(query) }
+            .onEach { movies ->
+                _state.update { it.copy(movies = movies) }
+            }
+            .launchIn(viewModelScope)
+    }
 }
