@@ -4,10 +4,10 @@ package com.abhishek.tempmovieapp.presentation.screens.movielist
 import android.R
 import android.widget.Toast
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -24,6 +24,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -164,7 +165,6 @@ fun MovieListContent(
     onAction: (MovieListIntent) -> Unit
 ) {
     val pullRefreshState = rememberPullToRefreshState()
-
     PullToRefreshBox(
         isRefreshing = state.isLoading,
         onRefresh = {
@@ -181,26 +181,48 @@ fun MovieListContent(
             )
         },
     ) {
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            modifier = modifier,
-            contentPadding = PaddingValues(10.dp),
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
+        if(state.isInitialLoading){
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+        } else if (state.movies.isEmpty()) {
+            EmptyMovieScreen(modifier)
+        } else {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                modifier = modifier,
+                contentPadding = PaddingValues(10.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
 
-            items(state.movies) { movie ->
-                MovieItem(
-                    imageUrl = movie.posterImg,
-                    title = movie.movieTitle,
-                    year = movie.releaseDate,
-                    rating = movie.voteAverage,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { onAction(MovieListIntent.OnMovieClicked(movie.id)) }
-                )
+                items(state.movies) { movie ->
+                    MovieItem(
+                        imageUrl = movie.posterImg,
+                        title = movie.movieTitle,
+                        year = movie.releaseDate,
+                        rating = movie.voteAverage,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onAction(MovieListIntent.OnMovieClicked(movie.id)) }
+                    )
+                }
             }
         }
+    }
+}
+
+@Composable
+fun EmptyMovieScreen(modifier: Modifier) {
+    Box(
+        modifier = modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = "Movie not available",
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onBackground
+        )
     }
 }
 
@@ -294,5 +316,5 @@ fun MovieListScreenPreview() {
     )
     val state = MovieListState(movies = tempMovies)
     val snackbarHostState = remember { SnackbarHostState() }
-    MovieListScreen(snackbarHostState,state) { }
+    MovieListScreen(snackbarHostState, state) { }
 }

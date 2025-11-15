@@ -3,7 +3,6 @@ package com.abhishek.tempmovieapp.presentation.screens.movielist
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.room.util.query
 import com.abhishek.tempmovieapp.core.constants.tempTag
 import com.abhishek.tempmovieapp.core.utils.DataError
 import com.abhishek.tempmovieapp.core.utils.NetworkMonitor
@@ -19,7 +18,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -45,6 +43,7 @@ class MovieListViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.Lazily, false)
 
     init {
+        _state.update { it.copy(isInitialLoading = true) }
         observerSearchQuery()
     }
 
@@ -55,39 +54,39 @@ class MovieListViewModel @Inject constructor(
             }
 
             is MovieListIntent.RefreshMovies -> {
-                refreshMovies()
+                viewModelScope.launch {
+                    refreshMovies()
+                }
             }
 
             else -> Unit
         }
     }
 
-    fun refreshMovies() {
-        viewModelScope.launch {
-            _state.update { it.copy(isLoading = true) }
-            Log.i(tempTag(), "network is ${isConnected.value}")
-            if (!isConnected.value) {
-                _events.emit(MovieListEvent.ShowSnackBar("No Internet Connection"))
-                _state.update { it.copy(isLoading = false) }
-                return@launch
+    suspend fun refreshMovies() {
+        _state.update { it.copy(isLoading = true) }
+        Log.i(tempTag(), "network is ${isConnected.value}")
+        if (!isConnected.value) {
+            _events.emit(MovieListEvent.ShowSnackBar("No Internet Connection"))
+            _state.update { it.copy(isLoading = false) }
+            return
+        }
+
+        refreshTrendingMoviesUseCase().onSuccess {
+            _state.update { it.copy(isLoading = false) }
+        }.onFailure { exception ->
+            _state.update { it.copy(isLoading = false) }
+            Log.e(tempTag(), "Fetch movies from network $exception")
+
+            // if move used then make a error handler fun
+            val message = when (exception) {
+                is DataError.LimitReached -> "No more movies found"
+                is DataError.NetworkError -> "Network error occurred!"
+                else -> "Some error occurred!"
             }
 
-            refreshTrendingMoviesUseCase().onSuccess {
-                _state.update { it.copy(isLoading = false) }
-            }.onFailure { exception ->
-                _state.update { it.copy(isLoading = false) }
-                Log.e(tempTag(), "Fetch movies from network $exception")
+            _events.emit(MovieListEvent.ShowToast(message))
 
-                // if move used then make a error handler fun
-                val message = when (exception) {
-                    is DataError.LimitReached -> "No more movies found"
-                    is DataError.NetworkError -> "Network error occurred!"
-                    else -> "Some error occurred!"
-                }
-
-                _events.emit(MovieListEvent.ShowToast(message))
-
-            }
         }
     }
 
@@ -99,10 +98,16 @@ class MovieListViewModel @Inject constructor(
                 getMoviesUseCase(query)
             }
             .onEach { movies ->
-                if (state.value.searchQuery.isEmpty() && movies.isEmpty()){
+                if (state.value.searchQuery.isEmpty() && movies.isEmpty()) {
+                    // app launch first time
                     refreshMovies()
+                    _state.update { it.copy(isInitialLoading = false) }
+                } else if (state.value.searchQuery.isEmpty() && !movies.isEmpty()) {
+                    // cold start
+                    _state.update { it.copy(isInitialLoading = false, movies = movies) }
+                } else {
+                    _state.update { it.copy(movies = movies) }
                 }
-                _state.update { it.copy(movies = movies) }
             }
             .launchIn(viewModelScope)
     }
