@@ -1,4 +1,7 @@
 package com.abhishek.tempmovieapp.presentation.screens.moviedetails
 
-class MovieDetailsState {
-}
+import com.abhishek.tempmovieapp.domain.model.Movie
+
+data class MovieDetailsState (
+    val movie: Movie? = null,
+)

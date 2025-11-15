@@ -11,6 +11,7 @@ import com.abhishek.tempmovieapp.domain.usecase.RefreshTrendingMoviesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -29,7 +30,7 @@ class MovieListViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(MovieListState())
-    val state: StateFlow<MovieListState> = _state
+    val state: StateFlow<MovieListState> = _state.asStateFlow()
 
     init {
         observerSearchQuery()

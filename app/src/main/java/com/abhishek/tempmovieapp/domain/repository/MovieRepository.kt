@@ -8,4 +8,5 @@ interface MovieRepository {
     suspend fun refreshTrendingMovies(): Result<Unit>
     // observe movies from db
     fun getMovies(query: String): Flow<List<Movie>>
+    fun getMovieById(id: Int): Flow<Movie?>
 }

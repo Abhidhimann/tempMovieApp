@@ -15,4 +15,7 @@ interface MovieDao {
 
     @Query("SELECT * FROM movies WHERE title LIKE '%' || :query || '%' ORDER BY id DESC")
     fun getMovies(query: String): Flow<List<MovieEntity>>
+
+    @Query("SELECT * FROM movies WHERE id = :id LIMIT 1")
+    fun getMovieById(id: Int): Flow<MovieEntity?>
 }

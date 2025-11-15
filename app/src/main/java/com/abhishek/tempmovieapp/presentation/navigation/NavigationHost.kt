@@ -1,6 +1,7 @@
 package com.abhishek.tempmovieapp.presentation.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -24,11 +25,15 @@ fun NavigationHost(navController: NavHostController, startDestination: String) {
             Screen.MovieDetails.route,
             arguments = listOf(navArgument(Screen.MovieDetails.ARG_MOVIE_ID) { type = NavType.LongType })
         ) { backStackEntry ->
-            val movieId = backStackEntry.arguments?.getInt(Screen.MovieDetails.ARG_MOVIE_ID) ?: -1
-            if (movieId == -1) {
-                // don't go show error
+            val movieId = backStackEntry.arguments?.getLong(Screen.MovieDetails.ARG_MOVIE_ID)
+            if (movieId != null) {
+                MovieDetailsScreenRoot()
+            } else {
+                // handle error case
+                LaunchedEffect(Unit) {
+                    navController.popBackStack()
+                }
             }
-            MovieDetailsScreenRoot(movieId = movieId)
         }
     }
 }

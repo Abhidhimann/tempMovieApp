@@ -13,6 +13,7 @@ import com.abhishek.tempmovieapp.domain.repository.MovieRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -54,6 +55,12 @@ class MovieRepositoryImpl @Inject constructor(
 
     override fun getMovies(query: String): Flow<List<Movie>> {
         return movieDao.getMovies(query)
-            .map { it.map { movieEntities -> movieEntities.toDomain() } }
+            .map { it.map { movieEntities -> movieEntities.toDomain() } }.flowOn(dispatcher)
+    }
+
+    override fun getMovieById(id: Int): Flow<Movie?> {
+        return movieDao.getMovieById(id)
+            .map { it?.toDomain() }
+            .flowOn(dispatcher)
     }
 }
