@@ -3,6 +3,7 @@ package com.abhishek.tempmovieapp.presentation.screens.movielist
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.room.util.query
 import com.abhishek.tempmovieapp.core.constants.tempTag
 import com.abhishek.tempmovieapp.core.utils.DataError
 import com.abhishek.tempmovieapp.core.utils.NetworkMonitor
@@ -18,6 +19,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -93,8 +95,13 @@ class MovieListViewModel @Inject constructor(
         state.map { it.searchQuery }
             .debounce(300L)
             .distinctUntilChanged()
-            .flatMapLatest { query -> getMoviesUseCase(query) }
+            .flatMapLatest { query ->
+                getMoviesUseCase(query)
+            }
             .onEach { movies ->
+                if (state.value.searchQuery.isEmpty() && movies.isEmpty()){
+                    refreshMovies()
+                }
                 _state.update { it.copy(movies = movies) }
             }
             .launchIn(viewModelScope)
