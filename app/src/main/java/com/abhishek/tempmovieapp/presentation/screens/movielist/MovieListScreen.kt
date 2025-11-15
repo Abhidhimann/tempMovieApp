@@ -23,18 +23,21 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
+
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,6 +54,8 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.abhishek.tempmovieapp.domain.model.Movie
 import com.abhishek.tempmovieapp.presentation.uiutils.MoviePoster
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun MovieListScreenRoot(
@@ -112,7 +117,7 @@ fun MovieListTopBar(
         singleLine = true,
         leadingIcon = {
             Icon(
-                imageVector = Icons.Default.Search,
+                painter = painterResource(id = R.drawable.ic_menu_search),
                 contentDescription = "Search icon"
             )
         },
@@ -126,24 +131,43 @@ fun MovieListContent(
     modifier: Modifier,
     onAction: (MovieListIntent) -> Unit
 ) {
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(2),
-        modifier = modifier,
-        contentPadding = PaddingValues(8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
+    val pullRefreshState = rememberPullToRefreshState()
 
-        items(state.movies) { movie ->
-            MovieItem(
-                imageUrl = movie.posterImg,
-                title = movie.movieTitle,
-                year = movie.releaseDate,
-                rating = movie.voteAverage,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { onAction(MovieListIntent.OnMovieClicked(movie.id)) }
+    PullToRefreshBox(
+        isRefreshing = state.isLoading,
+        onRefresh = {
+            onAction.invoke(MovieListIntent.RefreshMovies)
+        },
+        state = pullRefreshState,
+        indicator = {
+            Indicator(
+                modifier = Modifier.align(Alignment.TopCenter),
+                isRefreshing = state.isLoading,
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                state = pullRefreshState
             )
+        },
+    ) {
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            modifier = modifier,
+            contentPadding = PaddingValues(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+
+            items(state.movies) { movie ->
+                MovieItem(
+                    imageUrl = movie.posterImg,
+                    title = movie.movieTitle,
+                    year = movie.releaseDate,
+                    rating = movie.voteAverage,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onAction(MovieListIntent.OnMovieClicked(movie.id)) }
+                )
+            }
         }
     }
 }

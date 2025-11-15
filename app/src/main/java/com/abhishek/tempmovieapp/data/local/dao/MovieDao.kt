@@ -13,6 +13,6 @@ interface MovieDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMovies(movies: List<MovieEntity>)
 
-    @Query("SELECT * FROM movies WHERE title LIKE '%' || :query || '%' ORDER BY releaseDate DESC")
+    @Query("SELECT * FROM movies WHERE title LIKE '%' || :query || '%' ORDER BY id DESC")
     fun getMovies(query: String): Flow<List<MovieEntity>>
 }

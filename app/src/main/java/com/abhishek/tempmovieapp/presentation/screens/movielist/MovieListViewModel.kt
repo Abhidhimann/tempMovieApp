@@ -40,16 +40,21 @@ class MovieListViewModel @Inject constructor(
             is MovieListIntent.OnSearchQueryChanged -> {
                 _state.update { it.copy(searchQuery = intent.query) }
             }
+            is MovieListIntent.RefreshMovies -> {
+                refreshMovies()
+            }
             else -> Unit
         }
     }
 
     fun refreshMovies() {
+        _state.update { it.copy(isLoading = true) }
         viewModelScope.launch {
             refreshTrendingMoviesUseCase().onSuccess {
-
+                _state.update { it.copy(isLoading = false) }
             }.onFailure { exception ->
                 Log.e(classTag(), "Fetch movies from network $exception")
+                _state.update { it.copy(isLoading = false) } // todo error case do
             }
         }
     }
