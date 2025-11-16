@@ -21,6 +21,13 @@
 - **Dark & Light Mode**: Fully supports system theme for better user experience.
 - **Search Movies**: Search bar to quickly find movies.
 
+## Demo
+
+https://github.com/user-attachments/assets/07f8e78e-9553-44c0-a5dc-345175b27b83
+
+https://github.com/user-attachments/assets/39e23fa0-f6b3-49fc-926a-1b93183127de
+
+
 ## Apk File: [Movie App](https://github.com/Abhidhimann/tempMovieApp/blob/main/movieAppAbhishek.apk) 
 
 ## How to Build the Project
