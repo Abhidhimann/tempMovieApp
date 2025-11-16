@@ -17,7 +17,8 @@
 - **Pull to Refresh**: Swipe down to fetch the latest movies from the network.
 - **Offline Handling**: Movies are cached locally using Room, then shown to user. 
 - **Error Handling**: No static "No Internet" screen; **Shows a Snackbar on refresh while allowing users to browse cached movies**. Different toast messages for various error scenarios.
-- **Loading States**: Simple circular loading indicator 
+- **Loading State**: Simple circular loading indicator.
+- **Empty State**: Simple text: "No movie available"
 - **Dark & Light Mode**: Fully supports system theme for better user experience.
 - **Search Movies**: Search bar to quickly find movies.
 
